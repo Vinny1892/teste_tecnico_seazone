@@ -1,0 +1,33 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    env_file:
+      - ./.env
+    networks:
+      net_travel_plan_system:
+        ipv4_address: 172.16.101.2
+  api:
+    build:
+      context: .
+      dockerfile: docker/development/dockerfile.dev
+    depends_on:
+      - postgres
+    env_file:
+      - ./.env
+    ports:
+      - 8000:8000
+    volumes:
+      - ".:/app"
+    networks:
+      net_travel_plan_system:
+        ipv4_address: 172.16.101.4
+networks:
+  net_travel_plan_system:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.101.0/24

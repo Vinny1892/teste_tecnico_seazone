@@ -1,0 +1,28 @@
+# Imagem base
+FROM python:3.8
+
+# Define o diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+RUN apt update && apt install wget  sudo  gnupg2 -y
+RUN sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+RUN  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+RUN  apt install  vim curl postgresql-client  -y
+
+# Copia o arquivo requirements.txt para o diretório de trabalho
+COPY requirements.txt .
+
+# Instala as dependências do projeto
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia o código do projeto para o diretório de trabalho
+COPY . .
+
+ENV PYTHONUNBUFFERED=1
+
+# Expõe a porta que o Django está executando
+EXPOSE 8000
+
+# Comando para iniciar o servidor Django
+CMD ["docker/development/wait-for-it.sh"]
